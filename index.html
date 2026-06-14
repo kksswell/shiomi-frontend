@@ -22,9 +22,20 @@
             <a href="#" class="nav-link" data-tab="rules"><i class="fa-solid fa-scale-balanced"></i> Правила</a>
         </nav>
 
-        <button class="btn-steam" id="steamBtn">
-            Войти через Steam <i class="fa-brands fa-steam"></i>
-        </button>
+        <div id="authContainer">
+    <a href="https://shiomi-backend.onrender.com/api/auth/steam" id="loginBtn" class="steam-login-btn">
+        <img src="https://community.akamai.steamstatic.com/public/images/signinthroughsteam/sits_01.png" alt="Войти через Steam">
+    </a>
+    
+    <div id="userProfile" class="user-profile-block" style="display: none;">
+        <img id="userAvatar" src="" alt="Аватар" class="avatar-img">
+        <div class="profile-info">
+            <span id="userName" class="user-name-text">Загрузка...</span>
+            <span id="userStatus" class="status-badge">Игрок</span>
+        </div>
+        <a href="https://shiomi-backend.onrender.com/api/auth/logout" id="logoutBtn" class="logout-link">Выйти</a>
+    </div>
+</div>
     </header>
 
     <main class="container">
@@ -215,208 +226,131 @@
                 </a>
             </div>
         </footer>
+        <section id="statsSection" class="stats-section" style="display: none;">
+    <h2 class="section-title">📊 Мой Личный Кабинет</h2>
+    <div class="stats-container">
+        <div class="stats-card">
+            <h3>Привилегии и Баланс</h3>
+            <div class="info-row">
+                <span>VIP статус:</span> 
+                <strong id="statVip" style="color: #ef4444;">Нет</strong>
+            </div>
+            <div class="info-row">
+                <span>Баланс кредитов:</span> 
+                <strong id="statCredits" style="color: #3b82f6;">0 💰</strong>
+            </div>
+        </div>
+        
+        <div class="stats-card">
+            <h3>Статистика на сервере</h3>
+            <div class="info-row">
+                <span>Убийства (Kills):</span> 
+                <strong id="statKills" style="color: #10b981;">0</strong>
+            </div>
+            <div class="info-row">
+                <span>Смерти (Deaths):</span> 
+                <strong id="statDeaths" style="color: #f59e0b;">0</strong>
+            </div>
+            <div class="info-row">
+                <span>K/D Ratio:</span> 
+                <strong id="statKd" style="color: #ffffff;">0.00</strong>
+            </div>
+        </div>
+    </div>
+</section>
 
     </main>
+<script>
+    // URL твоего бэкенда на Render
+    const BACKEND_URL = "https://shiomi-backend.onrender.com";
 
-    <script>
-        // Измени на адрес своего бэкенда на хостинге, когда выложишь проект в сеть
-        const BACKEND_URL = 'https://shiomi-backend.onrender.com';
+    // Функция проверки авторизации (добавлен credentials для кук сессий)
+    async function checkAuth() {
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/user`, { credentials: 'include' });
+            const user = await response.json();
+            
+            const steamBtn = document.getElementById('steamBtn');
+            
+            if (user && user.username) {
+                // Если авторизован: меняем кнопку войти на красивый кликабельный профиль
+                steamBtn.innerHTML = `
+                    <div class="user-profile-header clickable-profile" onclick="switchTab('profile')">
+                        <img src="${user.avatar}" alt="Avatar" class="user-avatar">
+                        <span class="user-name">${user.username}</span>
+                    </div>
+                    <a href="${BACKEND_URL}/api/auth/logout" class="btn-logout" title="Выйти" style="margin-left: 10px; color: #ef4444;">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                `;
+                
+                // Показываем секцию статистики (личный кабинет)
+                const statsSection = document.getElementById('statsSection');
+                if (statsSection) {
+                    statsSection.style.display = "block";
+                }
+            } else {
+                // Если не авторизован: скрываем статистику
+                const statsSection = document.getElementById('statsSection');
+                if (statsSection) {
+                    statsSection.style.display = "none";
+                }
+            }
+        } catch (err) {
+            console.error("Ошибка проверки авторизации:", err);
+            // При ошибке на всякий случай скрываем личный кабинет
+            const statsSection = document.getElementById('statsSection');
+            if (statsSection) {
+                statsSection.style.display = "none";
+            }
+        }
+    }
 
-        // Переключение вкладок
-        const navLinks = document.querySelectorAll('.nav-link');
-        const tabContents = document.querySelectorAll('.tab-content');
-
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                navLinks.forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                tabContents.forEach(content => content.classList.remove('active'));
-                const targetTab = link.getAttribute('data-tab');
-                document.getElementById(`content-${targetTab}`).classList.add('active');
-            });
+    // Функция переключения на вкладку профиля / личного кабинета
+    function switchTab(tabName) {
+        // 1. Убираем активный класс со всех обычных вкладок контента (Магазин, Бонусы и т.д.)
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('tab-content-active');
+        });
+        
+        // 2. Убираем активный класс со всех ссылок в меню навигации
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
         });
 
-        // Спойлеры правил
-        const rulesItems = document.querySelectorAll('.rules-item');
-        rulesItems.forEach(item => {
-            const question = item.querySelector('.rules-question');
-            question.addEventListener('click', () => {
-                item.classList.toggle('open');
-            });
-        });
-
-        // ================= ЛОГИКА МОДАЛЬНОГО ОКНА СЕРВЕРА =================
-        const serverCard = document.getElementById('publicServerCard');
-        const serverModal = document.getElementById('serverModal');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const copyIpBtn = document.getElementById('copyIpBtn');
-        const serverIpInput = document.getElementById('serverIpInput');
-
-        if (serverCard && serverModal) {
-            serverCard.addEventListener('click', () => {
-                serverModal.classList.add('active');
-            });
-
-            closeModalBtn.addEventListener('click', () => {
-                serverModal.classList.remove('active');
-            });
-
-            serverModal.addEventListener('click', (e) => {
-                if (e.target === serverModal) {
-                    serverModal.classList.remove('active');
-                }
-            });
-        }
-
-        if (copyIpBtn && serverIpInput) {
-            copyIpBtn.addEventListener('click', () => {
-                serverIpInput.select();
-                serverIpInput.setSelectionRange(0, 99999);
-                navigator.clipboard.writeText(serverIpInput.value);
-                
-                const origIcon = copyIpBtn.innerHTML;
-                copyIpBtn.innerHTML = '<i class="fa-solid fa-check" style="color: #22c55e;"></i>';
-                setTimeout(() => {
-                    copyIpBtn.innerHTML = origIcon;
-                }, 2000);
-            });
-        }
-
-        // ================= ЛОГИКА ДЛЯ СУНДУКА (КЕЙСА) =================
-        const prizes = [
-            { name: "100 КРЕДИТОВ", rarity: "gray", icon: "fa-solid fa-coins" },
-            { name: "500 КРЕДИТОВ", rarity: "blue", icon: "fa-solid fa-coins" },
-            { name: "VIP (3 ДНЯ)", rarity: "cyan", icon: "fa-solid fa-crown" },
-            { name: "PREMIUM (3 ДНЯ)", rarity: "purple", icon: "fa-solid fa-shield-halved" },
-            { name: "АДМИНКА (3 ДНЯ)", rarity: "red", icon: "fa-solid fa-wand-magic-sparkles" },
-            { name: "SHIOMI STATUS", rarity: "gold", icon: "custom" }
-        ];
-
-        const chances = [40, 30, 18, 8, 3.5, 0.5];
-        const tape = document.getElementById('caseTape');
-        const openBtn = document.getElementById('openCaseBtn');
-        const resultMsg = document.getElementById('caseResultMessage');
-        const ITEM_WIDTH = 160;
-
-        function getRandomPrize() {
-            let r = Math.random() * 100;
-            let acc = 0;
-            for (let i = 0; i < chances.length; i++) {
-                acc += chances[i];
-                if (r <= acc) return prizes[i];
-            }
-            return prizes[0];
-        }
-
-        function initTape() {
-            tape.innerHTML = '';
-            for (let i = 0; i < 75; i++) {
-                const prize = getRandomPrize();
-                const item = document.createElement('div');
-                item.className = `tape-item rarity-${prize.rarity}`;
-                
-                if (prize.icon === 'custom') {
-                    item.innerHTML = `<div class="item-img custom-logo-item"></div><div class="item-name">${prize.name}</div>`;
-                } else {
-                    item.innerHTML = `<div class="item-img"><i class="${prize.icon}"></i></div><div class="item-name">${prize.name}</div>`;
-                }
-                tape.appendChild(item);
+        // 3. Переключаемся на профиль
+        if (tabName === 'profile') {
+            const statsSection = document.getElementById('statsSection');
+            if (statsSection) {
+                statsSection.style.display = 'block';
+                // Плавно прокручиваем экран вниз к карточкам статистики игрока
+                statsSection.scrollIntoView({ behavior: 'smooth' });
             }
         }
+    }
 
-        if (tape) {
-            initTape();
-        }
-
-        if (openBtn) {
-            openBtn.addEventListener('click', () => {
-                openBtn.disabled = true;
-                resultMsg.classList.remove('show');
-                
-                tape.style.transition = 'none';
-                tape.style.transform = 'translateX(0px)';
-                
-                initTape();
-
-                const winIndex = 50; 
-                const winningPrize = getRandomPrize();
-                
-                const items = tape.querySelectorAll('.tape-item');
-                const targetItem = items[winIndex];
-                targetItem.className = `tape-item rarity-${winningPrize.rarity}`;
-                if (winningPrize.icon === 'custom') {
-                    targetItem.innerHTML = `<div class="item-img custom-logo-item"></div><div class="item-name">${winningPrize.name}</div>`;
-                } else {
-                    targetItem.innerHTML = `<div class="item-img"><i class="${winningPrize.icon}"></i></div><div class="item-name">${winningPrize.name}</div>`;
+    // Обновление реального онлайна твоего сервера
+    async function fetchServerOnline() {
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/server/status`);
+            if (res.ok) {
+                const data = await res.json();
+                const onlineElem = document.getElementById('live-online-header');
+                if (onlineElem) {
+                    onlineElem.innerText = data.players || 0;
                 }
-
-                const windowWidth = document.getElementById('caseWindow').offsetWidth;
-                const targetPos = (winIndex * ITEM_WIDTH) - (windowWidth / 2) + (ITEM_WIDTH / 2);
-                
-                const randomShift = Math.floor(Math.random() * 80) - 40;
-
-                setTimeout(() => {
-                    tape.style.transition = 'transform 5s cubic-bezier(0.1, 0.8, 0.1, 1)';
-                    tape.style.transform = `translateX(-${targetPos + randomShift}px)`;
-                }, 50);
-
-                setTimeout(() => {
-                    resultMsg.innerHTML = `ВЫ ВЫИГРАЛИ: <span class="text-${winningPrize.rarity}">${winningPrize.name}</span>`;
-                    resultMsg.classList.add('show');
-                    openBtn.disabled = false;
-                }, 5300);
-            });
-        }
-
-        // ================= СИНХРОНИЗАЦИЯ С БЭКЕНДОМ =================
-
-        // Получение онлайна с бэка в реальном времени
-        async function updateServerStats() {
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/server-stats`);
-                const data = await response.json();
-                document.getElementById('live-online-header').innerText = data.online;
-                document.getElementById('live-online-card').innerText = `${data.online} / ${data.maxPlayers}`;
-                
-                const modalOnline = document.getElementById('modal-online-val');
-                if (modalOnline) {
-                    modalOnline.innerText = `${data.online} / ${data.maxPlayers}`;
-                }
-            } catch (err) {
-                console.error("Ошибка обновления статистики:", err);
             }
+        } catch (err) {
+            console.error("Не удалось обновить онлайн сервера:", err);
         }
-        updateServerStats();
-        setInterval(updateServerStats, 15000);
+    }
 
-        // Кнопка перенаправления на авторизацию Steam
-        const steamBtn = document.getElementById('steamBtn');
-        if (steamBtn) {
-            steamBtn.addEventListener('click', () => {
-                window.location.href = `${BACKEND_URL}/auth/steam`;
-            });
-        }
-
-        // Проверка авторизации (добавлен credentials для кук сессий)
-        async function checkAuth() {
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/user`, { credentials: 'include' });
-                const user = await response.json();
-                if (user.logged && steamBtn) {
-                    steamBtn.outerHTML = `
-                        <div class="user-profile-header">
-                            <img src="${user.avatar}" alt="Avatar" class="user-avatar">
-                            <span class="user-name">${user.username}</span>
-                            <a href="${BACKEND_URL}/auth/logout" class="btn-logout" title="Выйти"><i class="fa-solid fa-right-from-bracket"></i></a>
-                        </div>
-                    `;
-                }
-            } catch (err) {
-                console.error("Ошибка проверки авторизации:", err);
-            }
-        }
+    // Запуск скриптов при полной загрузке страницы
+    document.addEventListener('DOMContentLoaded', () => {
         checkAuth();
-    </script>
+        fetchServerOnline();
+        setInterval(fetchServerOnline, 30000); // Обновляем онлайн каждые 30 секунд
+    });
+</script>
 </body>
 </html>
