@@ -23,7 +23,9 @@
         </nav>
 
         <div id="authContainer">
-    <a href="https://shiomi-backend.onrender.com/api/auth/steam" id="loginBtn" class="steam-login-btn">
+    <a href="https://shiomi-backend.onrender.com/api/auth/steam" class="btn-steam" id="steamBtn">
+    Войти через Steam <i class="fa-brands fa-steam"></i>
+</a>
         <img src="https://community.akamai.steamstatic.com/public/images/signinthroughsteam/sits_01.png" alt="Войти через Steam">
     </a>
     
@@ -264,72 +266,90 @@
     // URL твоего бэкенда на Render
     const BACKEND_URL = "https://shiomi-backend.onrender.com";
 
-    // Функция проверки авторизации (добавлен credentials для кук сессий)
+    // Функция проверки авторизации (с передачей credentials для кук сессий)
     async function checkAuth() {
         try {
             const response = await fetch(`${BACKEND_URL}/api/user`, { credentials: 'include' });
+            
+            // Если сервер ответил ошибкой (например, 401 или не авторизован)
+            if (!response.ok) {
+                hideProfileShowLogin();
+                return;
+            }
+
             const user = await response.json();
-            
             const steamBtn = document.getElementById('steamBtn');
+            const statsSection = document.getElementById('statsSection');
             
+            // Если пользователь успешно авторизован на бэкенде
             if (user && user.username) {
-                // Если авторизован: меняем кнопку войти на красивый кликабельный профиль
+                // Превращаем синюю кнопку в красивый блок профиля с аватаркой
+                steamBtn.className = "user-profile-block-wrapper"; // Сбрасываем старый класс ссылки
+                steamBtn.removeAttribute('href'); // Убираем прямую ссылку на логин
+                
                 steamBtn.innerHTML = `
-                    <div class="user-profile-header clickable-profile" onclick="switchTab('profile')">
+                    <div class="clickable-profile" onclick="switchTab('profile')">
                         <img src="${user.avatar}" alt="Avatar" class="user-avatar">
                         <span class="user-name">${user.username}</span>
                     </div>
-                    <a href="${BACKEND_URL}/api/auth/logout" class="btn-logout" title="Выйти" style="margin-left: 10px; color: #ef4444;">
+                    <a href="${BACKEND_URL}/api/auth/logout" class="btn-logout" title="Выйти" style="margin-left: 12px; color: #ef4444; text-decoration: none;">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </a>
                 `;
                 
-                // Показываем секцию статистики (личный кабинет)
-                const statsSection = document.getElementById('statsSection');
+                // Отображаем личный кабинет (карточки статистики)
                 if (statsSection) {
                     statsSection.style.display = "block";
                 }
             } else {
-                // Если не авторизован: скрываем статистику
-                const statsSection = document.getElementById('statsSection');
-                if (statsSection) {
-                    statsSection.style.display = "none";
-                }
+                // Если сервер вернул null, значит сессии нет
+                hideProfileShowLogin();
             }
         } catch (err) {
-            console.error("Ошибка проверки авторизации:", err);
-            // При ошибке на всякий случай скрываем личный кабинет
-            const statsSection = document.getElementById('statsSection');
-            if (statsSection) {
-                statsSection.style.display = "none";
-            }
+            console.error("Ошибка проверки авторизации игрока:", err);
+            // При любой сетевой ошибке гарантированно оставляем кнопку входа
+            hideProfileShowLogin();
         }
     }
 
-    // Функция переключения на вкладку профиля / личного кабинета
+    // Функция-помощник: возвращает стандартный синий вид кнопки "Войти через Steam"
+    function hideProfileShowLogin() {
+        const steamBtn = document.getElementById('steamBtn');
+        const statsSection = document.getElementById('statsSection');
+        
+        if (steamBtn) {
+            steamBtn.className = "btn-steam";
+            steamBtn.href = `${BACKEND_URL}/api/auth/steam`;
+            steamBtn.innerHTML = `Войти через Steam <i class="fa-brands fa-steam"></i>`;
+        }
+        
+        if (statsSection) {
+            statsSection.style.display = "none";
+        }
+    }
+
+    // Функция переключения вкладок и скролла к личному кабинету
     function switchTab(tabName) {
-        // 1. Убираем активный класс со всех обычных вкладок контента (Магазин, Бонусы и т.д.)
+        // Убираем активные классы со стандартных вкладок (Магазин, Бонусы и т.д.)
         document.querySelectorAll('.tab-content').forEach(tab => {
             tab.classList.remove('tab-content-active');
         });
         
-        // 2. Убираем активный класс со всех ссылок в меню навигации
         document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.remove('active');
         });
 
-        // 3. Переключаемся на профиль
+        // Если кликнули по профилю — плавно скроллим к карточкам статистики внизу страницы
         if (tabName === 'profile') {
             const statsSection = document.getElementById('statsSection');
             if (statsSection) {
                 statsSection.style.display = 'block';
-                // Плавно прокручиваем экран вниз к карточкам статистики игрока
                 statsSection.scrollIntoView({ behavior: 'smooth' });
             }
         }
     }
 
-    // Обновление реального онлайна твоего сервера
+    // Получение и обновление реального онлайна сервера CS2
     async function fetchServerOnline() {
         try {
             const res = await fetch(`${BACKEND_URL}/api/server/status`);
@@ -345,11 +365,11 @@
         }
     }
 
-    // Запуск скриптов при полной загрузке страницы
+    // Запуск всех процессов после полной загрузки HTML-страницы
     document.addEventListener('DOMContentLoaded', () => {
         checkAuth();
         fetchServerOnline();
-        setInterval(fetchServerOnline, 30000); // Обновляем онлайн каждые 30 секунд
+        setInterval(fetchServerOnline, 30000); // Обновление онлайна каждые 30 секунд
     });
 </script>
 </body>
