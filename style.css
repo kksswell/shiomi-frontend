@@ -1112,3 +1112,45 @@ body {
 .clickable-profile:hover {
     opacity: 0.85; /* Слегка затемняем при наведении, чтобы был виден клик */
 }
+/* Дополнительные стили для личного кабинета */
+.stats-container {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    flex-wrap: wrap; /* Чтобы на мобильных карточки вставали друг под друга */
+}
+
+.stats-card {
+    flex: 1;
+    min-width: 300px; /* Чтобы карточки не становились слишком узкими */
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats-card h3 {
+    margin-top: 0;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+}
+
+.info-row {
+    margin: 15px 0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+/* Стили для кнопок и ссылок в профиле */
+.back-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.back-link:hover {
+    color: #60a5fa;
+}

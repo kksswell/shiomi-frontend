@@ -27,15 +27,17 @@
                 Войти через Steam <i class="fa-brands fa-steam"></i>
             </a>
             
-            <div id="userProfile" class="user-profile-block" style="display: none; align-items: center; gap: 12px; cursor: pointer;">
-                <img id="userAvatar" src="" alt="Аватар" class="avatar-img" style="width: 40px; height: 40px; border-radius: 50%;">
-                <div class="profile-info">
-                    <span id="userName" class="user-name-text" style="color: #fff; font-weight: bold;">Загрузка...</span>
-                    <span id="userStatus" class="status-badge" style="display: block; font-size: 11px; color: #3b82f6;">Игрок</span>
-                </div>
-                <a href="https://shiomi-backend.onrender.com/api/auth/logout" id="logoutBtn" class="logout-link" style="color: #ef4444; margin-left: 8px; text-decoration: none;" title="Выйти">
-                    <i class="fa-solid fa-right-from-bracket"></i>
+            <div id="userProfile" class="user-profile-block" style="display: none; align-items: center; gap: 12px;">
+                <a href="profile.html" target="_blank" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
+                    <img id="userAvatar" src="" alt="Аватар" class="avatar-img" style="width: 40px; height: 40px; border-radius: 50%;">
+                    <div class="profile-info">
+                        <span id="userName" class="user-name-text" style="color: #fff; font-weight: bold;">Загрузка...</span>
+                        <span id="userStatus" class="status-badge" style="display: block; font-size: 11px; color: #3b82f6;">Игрок</span>
+                    </div>
                 </a>
+                <button onclick="window.location.href='https://shiomi-backend.onrender.com/api/auth/logout'" class="logout-link" style="color: #ef4444; margin-left: 8px; border: none; background: none; cursor: pointer;" title="Выйти">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -265,18 +267,16 @@
 <script>
     const BACKEND_URL = "https://shiomi-backend.onrender.com";
 
-    // --- ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ВКЛАДОК МЕНЮ ---
     const navLinks = document.querySelectorAll('.nav-link');
     const tabContents = document.querySelectorAll('.tab-content');
 
+    // Переключение вкладок
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const targetTab = link.getAttribute('data-tab');
-
             navLinks.forEach(l => l.classList.remove('active'));
             tabContents.forEach(c => c.classList.remove('active'));
-
             link.classList.add('active');
             const activeContent = document.getElementById(`content-${targetTab}`);
             if (activeContent) {
@@ -285,41 +285,39 @@
         });
     });
 
-    // --- ПРОВЕРКА АВТОРИЗАЦИИ ЧЕРЕЗ STEAM ---
+    // Авторизация и загрузка профиля из БД
     async function checkAuth() {
         try {
-            const response = await fetch(`${BACKEND_URL}/api/user`, { credentials: 'include' });
-            
+            const response = await fetch(`${BACKEND_URL}/api/user/profile`, { credentials: 'include' });
             if (!response.ok) {
                 showLoginBtn();
                 return;
             }
-
             const data = await response.json();
             
-            if (data && data.logged === true) {
-                // Прячем кнопку логина, показываем красивый блок профиля
+            if (data && data.steamId) {
                 document.getElementById('steamBtn').style.display = 'none';
                 const userProfile = document.getElementById('userProfile');
                 userProfile.style.display = 'flex';
-
                 document.getElementById('userAvatar').src = data.avatar;
                 document.getElementById('userName').innerText = data.username;
-
-                // Показываем блок статистики и заполняем дефолтными/реальными значениями
+                
                 const statsSection = document.getElementById('statsSection');
                 if (statsSection) {
                     statsSection.style.display = 'block';
-                    // Скролл при клике на блок профиля в шапке
-                    userProfile.onclick = () => {
-                        statsSection.scrollIntoView({ behavior: 'smooth' });
-                    };
+                    document.getElementById('statVip').innerText = data.roles.vip ? 'Активен' : 'Нет';
+                    document.getElementById('statVip').style.color = data.roles.vip ? '#10b981' : '#ef4444';
+                    document.getElementById('statCredits').innerText = data.stats.points + ' 💰';
+                    document.getElementById('statKills').innerText = data.stats.kills;
+                    document.getElementById('statDeaths').innerText = data.stats.deaths;
+                    const kd = data.stats.deaths > 0 ? (data.stats.kills / data.stats.deaths).toFixed(2) : data.stats.kills.toFixed(2);
+                    document.getElementById('statKd').innerText = kd;
                 }
             } else {
                 showLoginBtn();
             }
         } catch (err) {
-            console.error("Ошибка проверки авторизации:", err);
+            console.error("Ошибка загрузки профиля:", err);
             showLoginBtn();
         }
     }
@@ -330,31 +328,24 @@
         document.getElementById('statsSection').style.display = 'none';
     }
 
-    // --- ПОЛУЧЕНИЕ ОНЛАЙНА СЕРВЕРА С БЭКЕНДА ---
+    // Обновление онлайна
     async function fetchServerOnline() {
         try {
             const res = await fetch(`${BACKEND_URL}/api/server/status`);
             if (res.ok) {
                 const data = await res.json();
                 const playersCount = data.players || 0;
-                
-                // Обновляем в шапке
                 document.getElementById('live-online-header').innerText = playersCount;
-                // Обновляем на карточке сервера
                 document.getElementById('live-online-card').innerText = `${playersCount} / 24`;
-                // Обновляем внутри модального окна
                 document.getElementById('modal-online-val').innerText = `${playersCount} / 24`;
             }
-        } catch (err) {
-            console.error("Ошибка обновления онлайна:", err);
-        }
+        } catch (err) { console.error("Ошибка онлайна:", err); }
     }
 
-    // --- МОДАЛЬНОЕ ОКНО ---
+    // Модальное окно сервера
     const modal = document.getElementById('serverModal');
     const serverCard = document.getElementById('publicServerCard');
     const closeModalBtn = document.getElementById('closeModalBtn');
-
     if (serverCard && modal) {
         serverCard.addEventListener('click', () => modal.classList.add('active'));
     }
@@ -362,7 +353,7 @@
         closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
     }
 
-    // --- КОПИРОВАНИЕ IP АДРЕСА ---
+    // Копирование IP
     const copyBtn = document.getElementById('copyIpBtn');
     if (copyBtn) {
         copyBtn.addEventListener('click', () => {
@@ -373,19 +364,17 @@
         });
     }
 
-    // --- АККОРДЕОН ДЛЯ ПРАВИЛ ---
+    // Правила (аккордеон)
     document.querySelectorAll('.rules-question').forEach(item => {
         item.addEventListener('click', () => {
-            const parent = item.parentElement;
-            parent.classList.toggle('active');
+            item.parentElement.classList.toggle('active');
         });
     });
 
-    // Запуск скриптов
     document.addEventListener('DOMContentLoaded', () => {
         checkAuth();
         fetchServerOnline();
-        setInterval(fetchServerOnline, 20000); // Опрос онлайна каждые 20 сек
+        setInterval(fetchServerOnline, 20000);
     });
 </script>
 </body>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Мой профиль — ShioMI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="background: #0d0e12; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px;">
+
+    <div class="container" style="max-width: 800px; width: 100%;">
+        <a href="index.html" style="color: #3b82f6; text-decoration: none;">← Назад на главную</a>
+        <h2 style="margin-top: 20px;">📊 ЛИЧНЫЙ КАБИНЕТ</h2>
+        
+        <div class="stats-container" style="display: flex; gap: 20px; margin-top: 20px;">
+            <div class="stats-card" style="flex: 1; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 12px;">
+                <h3>Привилегии и Баланс</h3>
+                <div class="info-row" style="margin: 15px 0; display: flex; justify-content: space-between;">
+                    <span>VIP статус:</span> <strong id="statVip" style="color: #ef4444;">Загрузка...</strong>
+                </div>
+                <div class="info-row" style="margin: 15px 0; display: flex; justify-content: space-between;">
+                    <span>Баланс кредитов:</span> <strong id="statCredits" style="color: #3b82f6;">0 💰</strong>
+                </div>
+            </div>
+            
+            <div class="stats-card" style="flex: 1; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 12px;">
+                <h3>Статистика на сервере</h3>
+                <div class="info-row" style="margin: 10px 0; display: flex; justify-content: space-between;">
+                    <span>Убийства:</span> <strong id="statKills" style="color: #10b981;">0</strong>
+                </div>
+                <div class="info-row" style="margin: 10px 0; display: flex; justify-content: space-between;">
+                    <span>Смерти:</span> <strong id="statDeaths" style="color: #f59e0b;">0</strong>
+                </div>
+                <div class="info-row" style="margin: 10px 0; display: flex; justify-content: space-between;">
+                    <span>K/D Ratio:</span> <strong id="statKd" style="color: #ffffff;">0.00</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = "https://shiomi-backend.onrender.com";
+
+        async function loadUserData() {
+            try {
+                // Теперь обращаемся к полному профилю из БД
+                const response = await fetch(`${BACKEND_URL}/api/user/profile`, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.steamId) {
+                    // Заполнение VIP статуса
+                    document.getElementById('statVip').innerText = data.roles.vip ? 'Активен' : 'Нет';
+                    document.getElementById('statVip').style.color = data.roles.vip ? '#10b981' : '#ef4444';
+                    
+                    // Заполнение кредитов и статов
+                    document.getElementById('statCredits').innerText = data.stats.points + ' 💰';
+                    document.getElementById('statKills').innerText = data.stats.kills;
+                    document.getElementById('statDeaths').innerText = data.stats.deaths;
+                    
+                    // Расчет K/D
+                    const kd = data.stats.deaths > 0 
+                        ? (data.stats.kills / data.stats.deaths).toFixed(2) 
+                        : data.stats.kills.toFixed(2);
+                    document.getElementById('statKd').innerText = kd;
+                } else {
+                    window.location.href = 'index.html'; // Если нет steamId — не авторизован
+                }
+            } catch (err) {
+                console.error("Ошибка загрузки профиля:", err);
+            }
+        }
+        loadUserData();
+    </script>
+</body>
+</html>
