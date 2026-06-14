@@ -23,21 +23,21 @@
         </nav>
 
         <div id="authContainer">
-    <a href="https://shiomi-backend.onrender.com/api/auth/steam" class="btn-steam" id="steamBtn">
-    Войти через Steam <i class="fa-brands fa-steam"></i>
-</a>
-        <img src="https://community.akamai.steamstatic.com/public/images/signinthroughsteam/sits_01.png" alt="Войти через Steam">
-    </a>
-    
-    <div id="userProfile" class="user-profile-block" style="display: none;">
-        <img id="userAvatar" src="" alt="Аватар" class="avatar-img">
-        <div class="profile-info">
-            <span id="userName" class="user-name-text">Загрузка...</span>
-            <span id="userStatus" class="status-badge">Игрок</span>
+            <a href="https://shiomi-backend.onrender.com/api/auth/steam" class="btn-steam" id="steamBtn">
+                Войти через Steam <i class="fa-brands fa-steam"></i>
+            </a>
+            
+            <div id="userProfile" class="user-profile-block" style="display: none; align-items: center; gap: 12px; cursor: pointer;">
+                <img id="userAvatar" src="" alt="Аватар" class="avatar-img" style="width: 40px; height: 40px; border-radius: 50%;">
+                <div class="profile-info">
+                    <span id="userName" class="user-name-text" style="color: #fff; font-weight: bold;">Загрузка...</span>
+                    <span id="userStatus" class="status-badge" style="display: block; font-size: 11px; color: #3b82f6;">Игрок</span>
+                </div>
+                <a href="https://shiomi-backend.onrender.com/api/auth/logout" id="logoutBtn" class="logout-link" style="color: #ef4444; margin-left: 8px; text-decoration: none;" title="Выйти">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </a>
+            </div>
         </div>
-        <a href="https://shiomi-backend.onrender.com/api/auth/logout" id="logoutBtn" class="logout-link">Выйти</a>
-    </div>
-</div>
     </header>
 
     <main class="container">
@@ -53,7 +53,7 @@
 
             <div class="server-content-area">
                 <div class="server-card-layout">
-                    <div id="publicServerCard" class="server-card-main" style="background-image: linear-gradient(to top, #0d0e12 15%, rgba(13, 14, 18, 0.2) 100%), url('https://images.unsplash.com/photo-1553481187-be93c21490a9?auto=format&fit=crop&q=80&w=400');">
+                    <div id="publicServerCard" class="server-card-main" style="background-image: linear-gradient(to top, #0d0e12 15%, rgba(13, 14, 18, 0.2) 100%), url('https://images.unsplash.com/photo-1553481187-be93c21490a9?auto=format&fit=crop&q=80&w=400'); cursor: pointer;">
                         <div class="card-inner">
                             <div class="card-header-info">
                                 <h3>PUBLIC</h3>
@@ -72,7 +72,7 @@
             <div class="server-header">
                 <div class="server-title">
                     <i class="fa-solid fa-basket-shopping text-blue"></i>
-                    <h2>МАГАЗИН ДОНАТА <span></span></h2>
+                    <h2>МАГАЗИН ДОНАТА</h2>
                 </div>
             </div>
 
@@ -117,7 +117,7 @@
             <div class="server-header">
                 <div class="server-title">
                     <i class="fa-solid fa-box-open text-blue"></i>
-                    <h2>КЕЙС ФОРТУНЫ <span></span></h2>
+                    <h2>КЕЙС ФОРТУНЫ</h2>
                 </div>
             </div>
 
@@ -125,7 +125,6 @@
                 <div class="case-roulette-outer">
                     <div class="case-pointer-top"></div>
                     <div class="case-pointer-bottom"></div>
-                    
                     <div class="case-window" id="caseWindow">
                         <div class="case-tape" id="caseTape"></div>
                     </div>
@@ -183,7 +182,6 @@
         <div id="serverModal" class="modal-overlay">
             <div class="modal-content">
                 <button id="closeModalBtn" class="modal-close-btn">&times;</button>
-                
                 <div class="modal-server-badge">CS2 СЕРВЕР</div>
                 <h3 class="modal-server-title">SHIOMI PUBLIC</h3>
                 <p class="modal-server-desc">Классический соревновательный режим с уникальными скинами, проработанным балансом и лучшим тикрейтом.</p>
@@ -215,161 +213,179 @@
             </div>
         </div>
 
-        <footer class="main-footer">
-            <div class="footer-socials">
-                <a href="https://t.me/shiomiteam" target="_blank" class="social-icon tg" title="Telegram">
-                    <i class="fa-brands fa-telegram"></i>
-                </a>
-                <a href="https://discord.gg/QyHz7xycp" target="_blank" class="social-icon dc" title="Discord">
-                    <i class="fa-brands fa-discord"></i>
-                </a>
-                <a href="https://tiktok.com/@твой_профиль" target="_blank" class="social-icon tt" title="TikTok">
-                    <i class="fa-brands fa-tiktok"></i>
-                </a>
+        <section id="statsSection" class="stats-section" style="display: none; margin-top: 40px;">
+            <h2 class="section-title">📊 Мой Личный Кабинет</h2>
+            <div class="stats-container" style="display: flex; gap: 20px; margin-top: 20px;">
+                <div class="stats-card" style="flex: 1; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 12px;">
+                    <h3>Привилегии и Баланс</h3>
+                    <div class="info-row" style="margin: 10px 0; display: flex; justify-content: space-between;">
+                        <span>VIP статус:</span> 
+                        <strong id="statVip" style="color: #ef4444;">Нет</strong>
+                    </div>
+                    <div class="info-row" style="margin: 10px 0; display: flex; justify-content: space-between;">
+                        <span>Баланс кредитов:</span> 
+                        <strong id="statCredits" style="color: #3b82f6;">0 💰</strong>
+                    </div>
+                </div>
+                
+                <div class="stats-card" style="flex: 1; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 12px;">
+                    <h3>Статистика на сервере</h3>
+                    <div class="info-row" style="margin: 10px 0; display: flex; justify-content: space-between;">
+                        <span>Убийства (Kills):</span> 
+                        <strong id="statKills" style="color: #10b981;">0</strong>
+                    </div>
+                    <div class="info-row" style="margin: 10px 0; display: flex; justify-content: space-between;">
+                        <span>Смерти (Deaths):</span> 
+                        <strong id="statDeaths" style="color: #f59e0b;">0</strong>
+                    </div>
+                    <div class="info-row" style="margin: 10px 0; display: flex; justify-content: space-between;">
+                        <span>K/D Ratio:</span> 
+                        <strong id="statKd" style="color: #ffffff;">0.00</strong>
+                    </div>
+                </div>
             </div>
-        </footer>
-        <section id="statsSection" class="stats-section" style="display: none;">
-    <h2 class="section-title">📊 Мой Личный Кабинет</h2>
-    <div class="stats-container">
-        <div class="stats-card">
-            <h3>Привилегии и Баланс</h3>
-            <div class="info-row">
-                <span>VIP статус:</span> 
-                <strong id="statVip" style="color: #ef4444;">Нет</strong>
-            </div>
-            <div class="info-row">
-                <span>Баланс кредитов:</span> 
-                <strong id="statCredits" style="color: #3b82f6;">0 💰</strong>
-            </div>
-        </div>
-        
-        <div class="stats-card">
-            <h3>Статистика на сервере</h3>
-            <div class="info-row">
-                <span>Убийства (Kills):</span> 
-                <strong id="statKills" style="color: #10b981;">0</strong>
-            </div>
-            <div class="info-row">
-                <span>Смерти (Deaths):</span> 
-                <strong id="statDeaths" style="color: #f59e0b;">0</strong>
-            </div>
-            <div class="info-row">
-                <span>K/D Ratio:</span> 
-                <strong id="statKd" style="color: #ffffff;">0.00</strong>
-            </div>
-        </div>
-    </div>
-</section>
+        </section>
 
     </main>
+
+    <footer class="main-footer">
+        <div class="footer-socials">
+            <a href="https://t.me/shiomiteam" target="_blank" class="social-icon tg" title="Telegram">
+                <i class="fa-brands fa-telegram"></i>
+            </a>
+            <a href="https://discord.gg/QyHz7xycp" target="_blank" class="social-icon dc" title="Discord">
+                <i class="fa-brands fa-discord"></i>
+            </a>
+            <a href="https://tiktok.com/@твой_профиль" target="_blank" class="social-icon tt" title="TikTok">
+                <i class="fa-brands fa-tiktok"></i>
+            </a>
+        </div>
+    </footer>
+
 <script>
-    // URL твоего бэкенда на Render
     const BACKEND_URL = "https://shiomi-backend.onrender.com";
 
-    // Функция проверки авторизации (с передачей credentials для кук сессий)
+    // --- ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ВКЛАДОК МЕНЮ ---
+    const navLinks = document.querySelectorAll('.nav-link');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetTab = link.getAttribute('data-tab');
+
+            navLinks.forEach(l => l.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+
+            link.classList.add('active');
+            const activeContent = document.getElementById(`content-${targetTab}`);
+            if (activeContent) {
+                activeContent.classList.add('active');
+            }
+        });
+    });
+
+    // --- ПРОВЕРКА АВТОРИЗАЦИИ ЧЕРЕЗ STEAM ---
     async function checkAuth() {
         try {
             const response = await fetch(`${BACKEND_URL}/api/user`, { credentials: 'include' });
             
-            // Если сервер ответил ошибкой (например, 401 или не авторизован)
             if (!response.ok) {
-                hideProfileShowLogin();
+                showLoginBtn();
                 return;
             }
 
-            const user = await response.json();
-            const steamBtn = document.getElementById('steamBtn');
-            const statsSection = document.getElementById('statsSection');
+            const data = await response.json();
             
-            // Если пользователь успешно авторизован на бэкенде
-            if (user && user.username) {
-                // Превращаем синюю кнопку в красивый блок профиля с аватаркой
-                steamBtn.className = "user-profile-block-wrapper"; // Сбрасываем старый класс ссылки
-                steamBtn.removeAttribute('href'); // Убираем прямую ссылку на логин
-                
-                steamBtn.innerHTML = `
-                    <div class="clickable-profile" onclick="switchTab('profile')">
-                        <img src="${user.avatar}" alt="Avatar" class="user-avatar">
-                        <span class="user-name">${user.username}</span>
-                    </div>
-                    <a href="${BACKEND_URL}/api/auth/logout" class="btn-logout" title="Выйти" style="margin-left: 12px; color: #ef4444; text-decoration: none;">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                    </a>
-                `;
-                
-                // Отображаем личный кабинет (карточки статистики)
+            if (data && data.logged === true) {
+                // Прячем кнопку логина, показываем красивый блок профиля
+                document.getElementById('steamBtn').style.display = 'none';
+                const userProfile = document.getElementById('userProfile');
+                userProfile.style.display = 'flex';
+
+                document.getElementById('userAvatar').src = data.avatar;
+                document.getElementById('userName').innerText = data.username;
+
+                // Показываем блок статистики и заполняем дефолтными/реальными значениями
+                const statsSection = document.getElementById('statsSection');
                 if (statsSection) {
-                    statsSection.style.display = "block";
+                    statsSection.style.display = 'block';
+                    // Скролл при клике на блок профиля в шапке
+                    userProfile.onclick = () => {
+                        statsSection.scrollIntoView({ behavior: 'smooth' });
+                    };
                 }
             } else {
-                // Если сервер вернул null, значит сессии нет
-                hideProfileShowLogin();
+                showLoginBtn();
             }
         } catch (err) {
-            console.error("Ошибка проверки авторизации игрока:", err);
-            // При любой сетевой ошибке гарантированно оставляем кнопку входа
-            hideProfileShowLogin();
+            console.error("Ошибка проверки авторизации:", err);
+            showLoginBtn();
         }
     }
 
-    // Функция-помощник: возвращает стандартный синий вид кнопки "Войти через Steam"
-    function hideProfileShowLogin() {
-        const steamBtn = document.getElementById('steamBtn');
-        const statsSection = document.getElementById('statsSection');
-        
-        if (steamBtn) {
-            steamBtn.className = "btn-steam";
-            steamBtn.href = `${BACKEND_URL}/api/auth/steam`;
-            steamBtn.innerHTML = `Войти через Steam <i class="fa-brands fa-steam"></i>`;
-        }
-        
-        if (statsSection) {
-            statsSection.style.display = "none";
-        }
+    function showLoginBtn() {
+        document.getElementById('steamBtn').style.display = 'inline-flex';
+        document.getElementById('userProfile').style.display = 'none';
+        document.getElementById('statsSection').style.display = 'none';
     }
 
-    // Функция переключения вкладок и скролла к личному кабинету
-    function switchTab(tabName) {
-        // Убираем активные классы со стандартных вкладок (Магазин, Бонусы и т.д.)
-        document.querySelectorAll('.tab-content').forEach(tab => {
-            tab.classList.remove('tab-content-active');
-        });
-        
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.classList.remove('active');
-        });
-
-        // Если кликнули по профилю — плавно скроллим к карточкам статистики внизу страницы
-        if (tabName === 'profile') {
-            const statsSection = document.getElementById('statsSection');
-            if (statsSection) {
-                statsSection.style.display = 'block';
-                statsSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-    }
-
-    // Получение и обновление реального онлайна сервера CS2
+    // --- ПОЛУЧЕНИЕ ОНЛАЙНА СЕРВЕРА С БЭКЕНДА ---
     async function fetchServerOnline() {
         try {
             const res = await fetch(`${BACKEND_URL}/api/server/status`);
             if (res.ok) {
                 const data = await res.json();
-                const onlineElem = document.getElementById('live-online-header');
-                if (onlineElem) {
-                    onlineElem.innerText = data.players || 0;
-                }
+                const playersCount = data.players || 0;
+                
+                // Обновляем в шапке
+                document.getElementById('live-online-header').innerText = playersCount;
+                // Обновляем на карточке сервера
+                document.getElementById('live-online-card').innerText = `${playersCount} / 24`;
+                // Обновляем внутри модального окна
+                document.getElementById('modal-online-val').innerText = `${playersCount} / 24`;
             }
         } catch (err) {
-            console.error("Не удалось обновить онлайн сервера:", err);
+            console.error("Ошибка обновления онлайна:", err);
         }
     }
 
-    // Запуск всех процессов после полной загрузки HTML-страницы
+    // --- МОДАЛЬНОЕ ОКНО ---
+    const modal = document.getElementById('serverModal');
+    const serverCard = document.getElementById('publicServerCard');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    if (serverCard && modal) {
+        serverCard.addEventListener('click', () => modal.classList.add('active'));
+    }
+    if (closeModalBtn && modal) {
+        closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
+    }
+
+    // --- КОПИРОВАНИЕ IP АДРЕСА ---
+    const copyBtn = document.getElementById('copyIpBtn');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+            const ipInput = document.getElementById('serverIpInput');
+            ipInput.select();
+            document.execCommand('copy');
+            alert('IP адрес успешно скопирован в буфер обмена!');
+        });
+    }
+
+    // --- АККОРДЕОН ДЛЯ ПРАВИЛ ---
+    document.querySelectorAll('.rules-question').forEach(item => {
+        item.addEventListener('click', () => {
+            const parent = item.parentElement;
+            parent.classList.toggle('active');
+        });
+    });
+
+    // Запуск скриптов
     document.addEventListener('DOMContentLoaded', () => {
         checkAuth();
         fetchServerOnline();
-        setInterval(fetchServerOnline, 30000); // Обновление онлайна каждые 30 секунд
+        setInterval(fetchServerOnline, 20000); // Опрос онлайна каждые 20 сек
     });
 </script>
 </body>
